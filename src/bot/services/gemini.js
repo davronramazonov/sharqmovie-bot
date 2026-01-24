@@ -1,29 +1,31 @@
 const axios = require('axios');
 
-const API_KEY = process.env.GEMINI_API_KEY;
+module.exports = async function askGemini(question) {
+  try {
+    if (!process.env.GEMINI_API_KEY) {
+      return `🤖 Savolingiz qabul qilindi:
 
-module.exports = async (question) => {
-  if (!API_KEY) {
-    throw new Error('GEMINI_API_KEY yo‘q');
-  }
+"${question}"
 
-  const url =
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
+Tez orada javob beramiz.`;
+    }
 
-  const response = await axios.post(url, {
-    contents: [
+    const res = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
-        parts: [{ text: question }]
+        contents: [
+          {
+            parts: [{ text: question }]
+          }
+        ]
       }
-    ]
-  });
+    );
 
-  const text =
-    response.data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-  if (!text) {
-    throw new Error('Gemini javob qaytarmadi');
+    return (
+      res.data.candidates?.[0]?.content?.parts?.[0]?.text ||
+      'Savolingizga hozircha javob topilmadi.'
+    );
+  } catch (e) {
+    return 'Savol qabul qilindi, keyinroq javob beramiz.';
   }
-
-  return text;
 };
