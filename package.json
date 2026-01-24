@@ -1,0 +1,13 @@
+{
+  "name": "sharqtech-bot",
+  "version": "1.0.0",
+  "main": "src/bot/index.js",
+  "scripts": {
+    "start": "node src/bot/index.js"
+  },
+  "dependencies": {
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
+    "telegraf": "^4.16.3"
+  }
+}
