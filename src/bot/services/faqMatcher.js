@@ -1,6 +1,6 @@
 const faq = require('./faqData');
 
-function findFaqAnswer(question) {
+module.exports = (question) => {
   const q = question.toLowerCase();
 
   for (const item of faq) {
@@ -9,6 +9,4 @@ function findFaqAnswer(question) {
     }
   }
   return null;
-}
-
-module.exports = findFaqAnswer;
+};

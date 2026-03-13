@@ -1,28 +1,25 @@
 const { Markup } = require('telegraf');
 
-// ===== ASOSIY MENYU =====
 const mainMenu = Markup.keyboard([
-  ['📥 Buyurtma berish'],
-  ['❓ Savollar', '🤝 Homiylik'],
-  ['ℹ️ Biz haqimizda', '📞 Aloqa']
+  ['🎬 Kino qidirish'],
+  ['📺 Seriallar'],
+  ['📞 Aloqa']
 ]).resize();
 
-// ===== ADMIN MENYU =====
 const adminMenu = Markup.keyboard([
   ['📊 Statistika'],
-  ['📥 Buyurtmalar'],
-  ['📢 Eʼlon berish'],
-  ['⬅️ Ortga']
+  ['/addmovie', '/addseries'],
+  ['/delmovie', '/addchannel'],
+  ['/addad'],
+  ['⬅️ Asosiy menyu']
 ]).resize();
 
-// ===== ORTGA MENYU (SAVOLLAR UCHUN) =====
-const backMenu = Markup.keyboard([
-  ['⬅️ Ortga']
+const cancelMenu = Markup.keyboard([
+  ['❌ Bekor qilish']
 ]).resize();
 
-// ===== EXPORT =====
 module.exports = {
   mainMenu,
   adminMenu,
-  backMenu
+  cancelMenu
 };

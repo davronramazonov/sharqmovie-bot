@@ -1,9 +1,12 @@
-const state = {
+module.exports = {
   orders: {},
   admin: {
     announceMode: false
   },
-  faqMode: {} // userId: true
+  searchMode: {},
+  addMovie: {},
+  addSeries: {},
+  addChannel: {},
+  addAd: {},
+  seriesSearch: {}
 };
-
-module.exports = state;
