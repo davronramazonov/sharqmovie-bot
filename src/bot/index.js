@@ -3,7 +3,9 @@ require('dotenv').config();
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-const ADMIN_ID = '1041434250';
+const ADMIN_ID = process.env.ADMIN_ID || '1041434250';
+
+const PORT = process.env.PORT || 8000;
 
 const mainMenu = Markup.keyboard([
   ['🎬 Kino qidirish'],
@@ -58,7 +60,6 @@ function getAdText() {
   return '';
 }
 
-let addMovieState = {};
 let addSeriesState = {};
 
 bot.command('start', async (ctx) => {
@@ -334,8 +335,43 @@ bot.action(/watch_(\d+)/, async (ctx) => {
   }
 });
 
-bot.launch();
-console.log('🎬 Sharq Movie bot ishga tushdi');
+bot.catch((err, ctx) => {
+  console.log(`Bot xatolik: ${err.message}`);
+});
 
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+const http = require('http');
+const server = http.createServer((req, res) => {
+  if (req.url === '/health' || req.url === '/') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'ok', bot: 'Sharq Movie Bot' }));
+  } else {
+    res.writeHead(404);
+    res.end();
+  }
+});
+
+server.listen(PORT, () => {
+  console.log(`HTTP server running on port ${PORT}`);
+  
+  bot.launch()
+    .then(() => {
+      console.log('🎬 Sharq Movie bot ishga tushdi');
+    })
+    .catch((err) => {
+      console.log('Bot xatolik:', err.message);
+    });
+});
+
+process.once('SIGINT', () => {
+  console.log('Bot to\'xtatildi (SIGINT)');
+  bot.stop('SIGINT');
+  server.close();
+  process.exit(0);
+});
+
+process.once('SIGTERM', () => {
+  console.log('Bot to\'xtatildi (SIGTERM)');
+  bot.stop('SIGTERM');
+  server.close();
+  process.exit(0);
+});
