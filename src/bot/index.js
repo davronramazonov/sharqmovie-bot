@@ -286,10 +286,16 @@ bot.on('text', async (ctx) => {
       }
     }
     
-    const buttons = movies.slice(0, 10).map(m => 
-      [Markup.button.callback(m.movie_name, `movie_${m.id}`)]
+    let message = `🔍 ${text} bo'yicha ${movies.length} ta kino topildi:\n\n`;
+    movies.forEach((m, i) => {
+      message += `${i + 1}. 🎬 ${m.movie_name} (${m.movie_code})\n`;
+    });
+    message += '\n👆 Kinoni kodini yuboring yoki pastdagi tugmalardan birini bosing:';
+    
+    const buttons = movies.slice(0, 8).map(m => 
+      [Markup.button.callback(`🎬 ${m.movie_name} (${m.movie_code})`, `watch_${m.id}`)]
     );
-    return ctx.reply(`${movies.length} ta kino topildi:`, Markup.inlineKeyboard(buttons));
+    return ctx.reply(message, Markup.inlineKeyboard(buttons));
   }
   
   ctx.reply('❌ Kino topilmadi', mainMenu);
@@ -297,29 +303,34 @@ bot.on('text', async (ctx) => {
 
 bot.action('check_sub', async (ctx) => {
   const channel = db.getRequiredChannel();
-  if (!channel) return ctx.answerCallbackQuery('Kanal topilmadi');
+  if (!channel) return ctx.answerCbQuery('Kanal topilmadi');
   
   const subscribed = await checkSubscription(ctx);
   if (subscribed) {
     await ctx.editMessageText('✅ Xush kelibsiz!', { reply_markup: null });
     ctx.reply('🎬 Sharq Movie botiga xush kelibsiz!', mainMenu);
   } else {
-    ctx.answerCallbackQuery('Hali a\'zo emassiz!', true);
+    ctx.answerCbQuery('Hali a\'zo emassiz!', true);
   }
 });
 
-bot.action(/movie_(\d+)/, async (ctx) => {
+bot.action(/watch_(\d+)/, async (ctx) => {
+  try {
+    await ctx.answerCbQuery();
+  } catch (e) {}
+  
   const movieId = parseInt(ctx.match[1]);
-  const allMovies = db.getMovieByName('');
-  const movie = allMovies.find(m => m.id === movieId);
+  const movie = db.getMovieById(movieId);
   
   if (movie) {
     try {
       await ctx.telegram.copyMessage(ctx.from.id, movie.channel_id, movie.message_id);
-      ctx.reply(`🎬 ${movie.movie_name}`, mainMenu);
+      ctx.reply(`🎬 ${movie.movie_name}${getAdText()}`, mainMenu);
     } catch (e) {
-      ctx.reply('❌ Xatolik');
+      ctx.reply('❌ Video yuborishda xatolik yuz berdi');
     }
+  } else {
+    ctx.reply('❌ Kino topilmadi');
   }
 });
 

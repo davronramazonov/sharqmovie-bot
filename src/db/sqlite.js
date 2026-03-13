@@ -70,6 +70,10 @@ function getMovieByCode(movieCode) {
   return db.prepare('SELECT * FROM movies WHERE movie_code = ?').get(movieCode);
 }
 
+function getMovieById(id) {
+  return db.prepare('SELECT * FROM movies WHERE id = ?').get(id);
+}
+
 function getMovieByName(movieName) {
   const searchTerm = movieName.toLowerCase().trim();
   const words = searchTerm.split(/\s+/).filter(w => w.length > 0);
@@ -166,6 +170,7 @@ module.exports = {
   getAllUsers,
   addMovie,
   getMovieByCode,
+  getMovieById,
   getMovieByName,
   searchMovies,
   deleteMovie,
