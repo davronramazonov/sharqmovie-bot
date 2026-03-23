@@ -2,9 +2,23 @@ import sqlite3
 import random
 import re
 import os
+import asyncio
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from threading import Thread
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, ContextTypes, filters
+
+class HealthCheck(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b'OK')
+    def log_message(self, *args): pass
+
+def run_health_check():
+    server = HTTPServer(('0.0.0.0', int(os.getenv('PORT', 8000))), HealthCheck)
+    server.serve_forever()
 
 load_dotenv()
 
@@ -473,5 +487,6 @@ app.add_handler(CommandHandler("post", post))
 app.add_handler(MessageHandler(filters.VIDEO, video))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, text))
 app.add_handler(CallbackQueryHandler(callback))
-print("Sharq Movie Bot ishga tushdi!")
+Thread(target=run_health_check, daemon=True).start()
+print(f"Sharq Movie Bot ishga tushdi! Port: {os.getenv('PORT', 8000)}")
 app.run_polling()
