@@ -1,1 +1,1 @@
-web: node src/bot/index.js
+web: python main.py
